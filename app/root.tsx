@@ -6,11 +6,11 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import { useEffect } from "react";
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import {usePuterStore} from "~/lib/puter";
-import {useEffect} from "react";
+import { usePuterStore } from "~/lib/puter";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -29,7 +29,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { init } = usePuterStore();
 
   useEffect(() => {
-    init()
+    // Ensure the script has loaded before initializing
+    const initPuter = () => {
+      if (typeof window !== 'undefined') {
+        init();
+      }
+    };
+
+    // If we're in the browser, initialize
+    if (typeof window !== 'undefined') {
+      // Small delay to ensure Puter script is loaded
+      setTimeout(initPuter, 100);
+    }
   }, [init]);
 
   return (
@@ -39,9 +50,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script src="https://js.puter.com/v2/"></script>
       </head>
       <body>
-        <script src="https://js.puter.com/v2/"></script>
         {children}
         <ScrollRestoration />
         <Scripts />
